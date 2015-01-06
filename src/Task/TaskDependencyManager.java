@@ -28,9 +28,14 @@ public class TaskDependencyManager {
 	
 	private void addDependentTask(Task task, Task isDependentUpon) throws TaskDependencyException{
 		
-		ArrayList<Task> list = null;
+		if(this.getAllDependentTasks(isDependentUpon).contains(task)){
+			throw new TaskDependencyException("Circular dependency introduced");
+		}
+		
+		ArrayList<Task> list;
 		if(this.taskToDependentTasks.containsKey(task)){
 			list = this.taskToDependentTasks.get(task);
+	
 		}else{
 			list = new ArrayList<Task>();
 		}
@@ -126,7 +131,7 @@ public class TaskDependencyManager {
 		if(dependentTasks != null){
 																								System.out.println("Task <"+task.getToDo()+"> has "+dependentTasks.size()+" dependents");
 			Collection<Task> dependentSubTasks = new ArrayList<Task>();
-			Collection<Task> nullcheck = null;
+			Collection<Task> nullcheck;
 			for(Task T : dependentTasks){
 																								System.out.println("getting all dependencies for T <"+T.getToDo()+">");
 				nullcheck = T.getAllDependentTasks();
