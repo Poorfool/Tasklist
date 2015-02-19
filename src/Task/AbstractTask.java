@@ -1,15 +1,19 @@
 package Task;
 
 import java.util.Collection;
+import java.util.Date;
 
-import TaskLifecycle.SimpleTaskLifecycle;
-import TaskLifecycle.TaskLifecycle;
-import TaskLifecycle.TaskState;
-import TaskLifecycle.TaskStateException;
-import TaskLifecycle.UndefinedTaskLifecycle;
+import Task.Dependency.TaskDependencyException;
+import Task.Dependency.TaskDependencyLink;
+import Task.Dependency.TaskDependencyManager;
+import Task.Lifecycle.TaskLifecycle;
+import Task.Lifecycle.TaskLifecycleState;
+import Task.Lifecycle.TaskLifecycleType;
+import Task.Lifecycle.UndefinedTaskLifecycle;
+import Task.State.*;
 
 
-public abstract class AbstractTask implements Task {
+public abstract class AbstractTask implements Task{
 
 	private String description = null;
 	private long id = -1;//might need a unique key later for db
@@ -17,19 +21,21 @@ public abstract class AbstractTask implements Task {
 	
 	protected AbstractTask(){}
 	protected AbstractTask(Exemplar e){};
-	protected abstract Task createTask(String name, TaskLifecycle lifecycle);
 	protected abstract Task createTask(String name);
-	
-	protected AbstractTask(String description){
-		this.id = 1;
-		this.description = description;
-		try{
-			this.lifecycle =  new SimpleTaskLifecycle();
-		} catch (Exception e){
-			System.console().printf("Error creating task " + e.getMessage());
-		}
-		
-	}
+
+	@Override
+	public abstract TaskType getTaskType();
+
+//	protected AbstractTask(String description){
+//		this.id = 1;
+//		this.description = description;
+//		try{
+//			this.lifecycle =  new SimpleTaskLifecycle();
+//		} catch (Exception e){
+//			System.console().printf("Error creating task " + e.getMessage());
+//		}
+//
+//	}
 
 	protected AbstractTask(String description, TaskLifecycle lifecycle){
 		this.id = 1;
@@ -56,10 +62,15 @@ public abstract class AbstractTask implements Task {
 		return this.id;
 	}
 
-	// Lifecycle access methods
+	// Task.Lifecycle access methods
 	@Override
 	public boolean isValid() {
 		return this.lifecycle.isValid();
+	}
+
+	@Override
+	public TaskLifecycleType getLifecycleType() {
+		return this.lifecycle.getLifecycleType();
 	}
 
 	@Override
@@ -67,32 +78,25 @@ public abstract class AbstractTask implements Task {
 		return lifecycle.isComplete();
 	}
 
-	public boolean setState(TaskState newState) throws TaskStateException{
-		// TODO implement rules governing promotion through states
-		this.lifecycle.setState(newState);
-		return true;
-	}
-
-
 	@Override
-	public TaskState getStatus() {
+	public TaskLifecycleState getState() {
 		return this.getLifecycle().getState();
 	}
 
 	@Override
-	public TaskState updateStatus(TaskState newState) throws TaskStateException {		// TODO Auto-generated method stub
+	public TaskLifecycleState setState(TaskLifecycleState newState) throws TaskStateException {		// TODO Auto-generated method stub
 		return this.getLifecycle().setState(newState);
 	}
 
 	@Override
-	public void advanceState() throws TaskStateException {
-		this.getLifecycle().advance();
+	public TaskLifecycleState advance() throws TaskStateException {
+		return this.getLifecycle().advance();
 		
 	}
 
 	@Override
-	public void markComplete() throws TaskStateException {
-		this.getLifecycle().setState(TaskState.Completed);
+	public TaskLifecycleState markComplete() throws TaskStateException {
+		return this.getLifecycle().setState(TaskLifecycleState.Completed);
 		
 	}
 	// dependency access methods
@@ -101,24 +105,39 @@ public abstract class AbstractTask implements Task {
 	}
 
 	@Override
-	public Collection<Task> getDependentTasks() {
+	public Collection<? extends Task> getDependentTasks() {
 		return TaskDependencyManager.getManager().getDependentTasks(this);
 	}
 
 	@Override
-	public Collection<Task> getAllDependentTasks() {
+	public Collection<? extends Task> getAllDependentTasks() {
 		return TaskDependencyManager.getManager().getAllDependentTasks(this);
 	}
 
 	@Override
-	public void addDependentTasks(Collection<Task> newDependencies) throws TaskDependencyException{
-		this.addDependentTasks(newDependencies);
+	public void addDependentTasks(Collection<? extends Task> newDependencies) throws TaskDependencyException {
+		for(Task T : newDependencies){
+			this.addDependentTask(T);
+		}
+	}
+
+	@Override
+	public void removeDependentTask(Task dependentTask)
+			throws TaskDependencyException {
+		TaskDependencyManager.getManager().removeDependentTask(new TaskDependencyLink(this, dependentTask));
+	}
+
+	@Override
+	public void removeDependentTasks(Collection<? extends Task> newDependencies) throws TaskDependencyException {
+		for(Task T : newDependencies){
+			this.removeDependentTask(T);
+		}
 	}
 
 	@Override
 	public void addDependentTask(Task dependentTask)
 			throws TaskDependencyException {
-		TaskDependencyManager.getManager().addDependentTask(new TaskDependency(this, dependentTask));
+		TaskDependencyManager.getManager().addDependentTask(new TaskDependencyLink(this, dependentTask));
 	}
 
 	@Override
@@ -126,12 +145,10 @@ public abstract class AbstractTask implements Task {
 		return this.lifecycle;
 	}
 
-	@Override
-	public abstract TaskType getTaskType();
 
 	@Override
 	public int dependentTaskCount() {
-		Collection<Task> tasks = TaskDependencyManager.getManager().getDependentTasks(this);
+		Collection<? extends Task> tasks = TaskDependencyManager.getManager().getDependentTasks(this);
 		if(tasks != null){
 			return tasks.size();
 		}
@@ -147,8 +164,46 @@ public abstract class AbstractTask implements Task {
 	}
 	
 	@Override
-	public void rollbackState() throws TaskStateException {
-		this.getLifecycle().rollback();
+	public TaskLifecycleState rollback() throws TaskStateException {
+		return this.getLifecycle().rollback();
+	}
+
+
+	//Due Date methods
+	private Date due = null;
+	@Override
+	public boolean hasDueDate(){
+		return this.due != null;
+	}
+
+	@Override
+	public Date getDueDate(){
+		return this.due;
+	}
+
+	@Override
+	public Date setDueDate(Date newDeadline) throws TaskStateException {
+		Date today = new Date();
+
+		if(newDeadline.after(today)){ //cannot set a due date before now...
+			due = newDeadline;
+		}else {
+			throw new TaskStateException("Due date in the past");
+		}
+		return due;
+	}
+
+
+	@Override
+	public void finalize(){
+		Collection<? extends Task> dependencies = this.getDependentTasks();
+		if(null!=dependencies){
+			try{
+				this.removeDependentTasks(dependencies);
+			} catch (TaskDependencyException e){
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

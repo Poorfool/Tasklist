@@ -1,13 +1,14 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 import static org.junit.Assert.*;
 
+import Task.Lifecycle.LifecycleFactory;
+import Task.Lifecycle.TaskLifecycle;
+import Task.Lifecycle.TaskLifecycleState;
+import Task.Lifecycle.TaskLifecycleTypes;
+import Task.State.TaskStateException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import TaskLifecycle.LifecycleFactory;
-import TaskLifecycle.TaskLifecycle;
-import TaskLifecycle.TaskLifecycleTypes;
 
 public class InProgressTaskLifecycleTest {
 
@@ -33,18 +34,18 @@ public class InProgressTaskLifecycleTest {
 			assertTrue(lifecycle.isValid());
 			assertTrue(lifecycle.getState().getDescription() == "in progress");
 
-			lifecycle.setState(TaskState.NotStarted);
+			lifecycle.setState(TaskLifecycleState.NotStarted);
 			assertFalse(lifecycle.isComplete());
 			assertTrue(lifecycle.isValid());
-			assertFalse(lifecycle.getState() == TaskState.InProgress);
-			assertTrue(lifecycle.getState() == TaskState.NotStarted);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.InProgress);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.NotStarted);
 						
 			lifecycle.advance();
 			lifecycle.rollback();
 			assertFalse(lifecycle.isComplete());
 			assertTrue(lifecycle.isValid());
-			assertFalse(lifecycle.getState() == TaskState.InProgress);
-			assertTrue(lifecycle.getState() == TaskState.NotStarted);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.InProgress);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.NotStarted);
 			
 		} catch (TaskStateException e) {
 			fail("TastStateException Thrown : " + e.getMessage());
@@ -56,8 +57,8 @@ public class InProgressTaskLifecycleTest {
 		} catch(TaskStateException e) {
 			assertTrue(e.getMessage() == "Rolled back task not started");
 			assertTrue(lifecycle.isValid());
-			assertFalse(lifecycle.getState() == TaskState.InProgress);
-			assertTrue(lifecycle.getState() == TaskState.NotStarted);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.InProgress);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.NotStarted);
 		}
 		
 		try{
@@ -65,15 +66,15 @@ public class InProgressTaskLifecycleTest {
 			lifecycle.advance();  // to in progress
 			assertFalse(lifecycle.isComplete());
 			assertTrue(lifecycle.isValid());
-			assertFalse(lifecycle.getState() == TaskState.NotStarted);
-			assertTrue(lifecycle.getState() == TaskState.InProgress);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.NotStarted);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.InProgress);
 			
 			lifecycle.advance();  // to Completed
 			assertTrue(lifecycle.isComplete());
 			assertTrue(lifecycle.isValid());
-			assertTrue(lifecycle.getState() == TaskState.Completed);
-			assertFalse(lifecycle.getState() == TaskState.NotStarted);
-			assertFalse(lifecycle.getState() == TaskState.InProgress);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.Completed);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.NotStarted);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.InProgress);
 								
 		} catch (TaskStateException e) {
 			fail("Exception Thrown : " + e.getMessage());
@@ -91,8 +92,8 @@ public class InProgressTaskLifecycleTest {
 			lifecycle.rollback();
 			assertFalse(lifecycle.isComplete());
 			assertTrue(lifecycle.isValid());
-			assertFalse(lifecycle.getState() == TaskState.NotStarted);
-			assertTrue(lifecycle.getState() == TaskState.InProgress);
+			assertFalse(lifecycle.getState() == TaskLifecycleState.NotStarted);
+			assertTrue(lifecycle.getState() == TaskLifecycleState.InProgress);
 		} catch (TaskStateException e) {
 			fail("Exception Thrown : " + e.getMessage());
 			e.printStackTrace();

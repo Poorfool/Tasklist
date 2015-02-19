@@ -1,4 +1,4 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 
 public class TaskLifecycleType {
 	

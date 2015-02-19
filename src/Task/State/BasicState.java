@@ -1,13 +1,14 @@
-package TaskLifecycle;
+package Task.State;
 
 
+import Task.Lifecycle.TaskLifecycleState;
 
-public class BasicState implements TaskState {
+public class BasicState implements TaskLifecycleState {
 	
 	private String description;
 	
 	public BasicState(){
-		this.description = TaskState.UNDEFINED;
+		this.description = TaskLifecycleState.UNDEFINED;
 	}
 	
 	public BasicState(String currentState){
@@ -18,7 +19,7 @@ public class BasicState implements TaskState {
 		this.description = state.getDescription();
 	}
 	@Override
-	public final TaskState getState() {
+	public final TaskLifecycleState getState() {
 		return this;
 	}
 

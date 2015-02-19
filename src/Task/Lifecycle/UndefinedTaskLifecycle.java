@@ -1,8 +1,9 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 
 import java.util.ArrayList;
 
 import Task.Exemplar;
+import Task.State.TaskStateException;
 
 
 public class UndefinedTaskLifecycle extends AbstractTaskLifecycle {
@@ -10,29 +11,28 @@ public class UndefinedTaskLifecycle extends AbstractTaskLifecycle {
 	public UndefinedTaskLifecycle(){}
 	
 	@Override
-	public TaskState getState(){
+	public TaskLifecycleState getState(){
 		return null;
 	}
 
 	@Override
 	public boolean isComplete() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public TaskState advance() throws TaskStateException {
-		throw new TaskStateException("undefined TaskLifecycle");
+	public TaskLifecycleState advance() throws TaskStateException {
+		throw new TaskStateException("undefined Task.State");
 	}
 
 	@Override
-	public TaskState setState(TaskState newState) throws TaskStateException {
-		throw new TaskStateException("undefined TaskLifecycle");
+	public TaskLifecycleState setState(TaskLifecycleState newState) throws TaskStateException {
+		throw new TaskStateException("undefined Task.State");
 	}
 
 	@Override
-	public TaskState rollback() throws TaskStateException {
-		throw new TaskStateException("undefined TaskLifecycle");
+	public TaskLifecycleState rollback() throws TaskStateException {
+		throw new TaskStateException("undefined Task.State");
 	}
 
 	@Override
@@ -51,18 +51,18 @@ public class UndefinedTaskLifecycle extends AbstractTaskLifecycle {
 	}
 
 	@Override
-	public TaskLifecycle createLifecycle(TaskState state)
+	public TaskLifecycle createLifecycle(TaskLifecycleState state)
 			throws TaskStateException {
 		return new UndefinedTaskLifecycle();
 	}
 
 	@Override
-	public TaskLifecycleType getType() {
+	public TaskLifecycleType getLifecycleType() {
 		return TaskLifecycleTypes.Undefined;
 	}
 
 	@Override
-	protected ArrayList<TaskState> defaultOrder() {
+	protected ArrayList<TaskLifecycleState> defaultOrder() {
 		return null;
 	}
 

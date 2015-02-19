@@ -1,45 +1,45 @@
 package Task;
 
-import static org.junit.Assert.*;
-
+import Task.Lifecycle.TaskLifecycleState;
+import Task.Lifecycle.TaskLifecycleTypes;
+import Task.State.TaskStateException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import TaskLifecycle.TaskLifecycleTypes;
-import TaskLifecycle.TaskState;
-import TaskLifecycle.TaskStateException;
+import static org.junit.Assert.*;
 
 public class TaskTest {
 
+	private Task goHome;
+	private String GoHome = "Go Home";
 	@Before
 	public void setUp() throws Exception {
+
+		goHome = TaskFactory.getTaskFactory().createTask(
+				TaskTypes.Simple,
+				GoHome);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		goHome=null;
 	}
 
 	@Test
 	public void test() {
-		String GoHome = "Go Home";
-		
-		Task goHome = TaskFactory.getTaskFactory().createTask(
-				TaskTypes.Simple,
-				GoHome,
-				TaskLifecycleTypes.Simple);
-		
+
 		assertTrue(goHome != null);
 		assertEquals(goHome.getToDo(), GoHome);
 		assertEquals(goHome.getTaskType(), TaskTypes.Simple);
-		assertEquals(goHome.getLifecycle().getType(), TaskLifecycleTypes.Simple);
-		assertEquals(goHome.getStatus(), TaskState.NotStarted);
+		assertEquals(goHome.getLifecycle().getLifecycleType(), TaskLifecycleTypes.Simple);
+		assertEquals(goHome.getState(), TaskLifecycleState.NotStarted);
 		assertFalse(goHome.isComplete());
 		assertTrue(goHome.isValid());
 		assertTrue(goHome.isExecutable());
 		try {
-			goHome.advanceState();
-			assertEquals(goHome.getStatus(), TaskState.Completed);
+			goHome.advance();
+			assertEquals(goHome.getState(), TaskLifecycleState.Completed);
 			assertTrue(goHome.isComplete());
 			assertFalse(goHome.isExecutable());
 		} catch (TaskStateException e) {

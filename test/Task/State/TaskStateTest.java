@@ -1,13 +1,14 @@
-package TaskLifecycle;
+package Task.State;
+
 import static org.junit.Assert.*;
 
-
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 
-
+import Task.Lifecycle.*;
 
 public class TaskStateTest {
 
@@ -22,9 +23,9 @@ public class TaskStateTest {
 
 	@Test
 	public void test() {
-		TaskState state = new BasicState();
+		TaskLifecycleState state = new BasicState();
 		String description = "test";
-		assertEquals(state.getDescription(), TaskState.UNDEFINED);
+		assertEquals(state.getDescription(), TaskLifecycleState.UNDEFINED);
 		state.setDescription(description);
 		assertEquals(state.getDescription(),description);
 	}

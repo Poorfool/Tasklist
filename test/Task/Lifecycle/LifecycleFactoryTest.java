@@ -1,13 +1,13 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 
 import static org.junit.Assert.*;
 
+import Task.Lifecycle.LifecycleFactory;
+import Task.Lifecycle.TaskLifecycle;
+import Task.Lifecycle.TaskLifecycleTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import TaskLifecycle.LifecycleFactory;
-import TaskLifecycle.TaskLifecycle;
 
 public class LifecycleFactoryTest {
 

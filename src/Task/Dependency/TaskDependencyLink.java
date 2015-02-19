@@ -1,12 +1,14 @@
-package Task;
+package Task.Dependency;
 
-public class TaskDependency {
+import Task.Task;
+
+public class TaskDependencyLink {
 	private Task task = null;
 	private Task dependency = null;
 	
-	public TaskDependency(Task task, Task dependency){
+	public TaskDependencyLink(Task task, Task isDependentUpon){
 		this.task = task;
-		this.dependency = dependency;
+		this.dependency = isDependentUpon;
 	}
 	
 	public Task getTask(){

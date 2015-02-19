@@ -1,4 +1,4 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 
 public interface TaskLifecycleTypes {
 	public static final TaskLifecycleType Simple = new TaskLifecycleType("Simple");

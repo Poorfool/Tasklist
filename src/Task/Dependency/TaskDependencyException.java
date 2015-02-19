@@ -1,4 +1,4 @@
-package Task;
+package Task.Dependency;
 
 public class TaskDependencyException extends Exception {
 

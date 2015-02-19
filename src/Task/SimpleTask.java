@@ -1,22 +1,19 @@
 package Task;
 
-import TaskLifecycle.TaskLifecycle;
+import Task.Lifecycle.*;
 
 public class SimpleTask extends AbstractTask {
 
-	protected SimpleTask(){super();}
-	public SimpleTask(Exemplar e){super(e);}
-	protected SimpleTask(String name, TaskLifecycle lifecycle){
-		super(name, lifecycle);
+	protected SimpleTask() {
+		super();
 	}
-	
-	protected SimpleTask(String name){
-		super(name);
+
+	public SimpleTask(Exemplar e) {
+		super(e);
 	}
-	
-	@Override
-	protected Task createTask(String name, TaskLifecycle lifecycle) {
-		return new SimpleTask(name, lifecycle);
+
+	protected SimpleTask(String name) {
+		super(name, LifecycleFactory.getLifecycleFactory().createTaskLifecycle(TaskLifecycleTypes.Simple));
 	}
 
 	@Override

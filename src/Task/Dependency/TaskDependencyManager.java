@@ -1,4 +1,6 @@
-package Task;
+package Task.Dependency;
+
+import Task.Task;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,22 +9,25 @@ import java.util.HashMap;
 public class TaskDependencyManager {
 	
 	private static TaskDependencyManager manager = null;
-	private HashMap<Task, ArrayList<Task>> taskToDependentTasks = null;
-	private HashMap<Task, ArrayList<Task>> dependentTasksToTasks = null;
-	
-	private TaskDependencyManager(){
-		this.taskToDependentTasks = new HashMap<Task, ArrayList<Task>>();
-		this.dependentTasksToTasks = new HashMap<Task, ArrayList<Task>>();		
-	}
-	
 	public static TaskDependencyManager getManager(){
 		if(manager == null){
 			manager = new TaskDependencyManager();
 		}
 		return manager;
 	}
+
+
+	private HashMap<Task, ArrayList<Task>> taskToDependentTasks = null;
+	private HashMap<Task, ArrayList<Task>> dependentTasksToTasks = null;
 	
-	public void addDependentTask(TaskDependency dependency) throws TaskDependencyException{
+	private TaskDependencyManager(){
+		this.taskToDependentTasks = new HashMap<>();
+		this.dependentTasksToTasks = new HashMap<>();
+	}
+	
+
+	
+	public void addDependentTask(TaskDependencyLink dependency) throws TaskDependencyException{
 		this.addDependentTask(dependency.getTask(), dependency.getDependency());
 	}
 	
@@ -37,8 +42,9 @@ public class TaskDependencyManager {
 			list = this.taskToDependentTasks.get(task);
 	
 		}else{
-			list = new ArrayList<Task>();
+			list = new ArrayList<>();
 		}
+		
 		if(!list.add(isDependentUpon)){
 			throw new TaskDependencyException("Task not added to dependency list");
 		}
@@ -54,6 +60,7 @@ public class TaskDependencyManager {
 		}
 		dependentTasksToTasks.put(isDependentUpon, list);
 	}
+
 	
 	public Collection<Task> addDependentTasks(Task task, Collection<Task> dependencies) throws TaskDependencyException{
 		for(Task T : dependencies){
@@ -62,7 +69,7 @@ public class TaskDependencyManager {
 		return this.getDependentTasks(task);
 	}
 	
-	public void removeDependentTask(TaskDependency dependency) throws TaskDependencyException{
+	public void removeDependentTask(TaskDependencyLink dependency) throws TaskDependencyException{
 		removeDependentTask(dependency.getTask(), dependency.getDependency());
 	}
 	
@@ -98,7 +105,7 @@ public class TaskDependencyManager {
 	}
 	
 	private boolean hasExecutableDependentTask(Task task, boolean executable){
-		Collection<Task> dependents = task.getDependentTasks();
+		Collection<? extends Task> dependents = task.getDependentTasks();
 		if(!executable){
 			if(null != dependents){
 				for(Task T : dependents){
@@ -126,25 +133,18 @@ public class TaskDependencyManager {
 	}
 	
 	public Collection<Task> getAllDependentTasks(Task task){
-																								System.out.println("All tasks for <"+task.getToDo()+">");
-		Collection<Task> dependentTasks = task.getDependentTasks();
+		Collection<Task> dependentTasks = (Collection<Task>) task.getDependentTasks();
 		if(dependentTasks != null){
-																								System.out.println("Task <"+task.getToDo()+"> has "+dependentTasks.size()+" dependents");
-			Collection<Task> dependentSubTasks = new ArrayList<Task>();
-			Collection<Task> nullcheck;
+			Collection<Task> dependentSubTasks = new ArrayList<>();
+			Collection<Task> nullCheck;
 			for(Task T : dependentTasks){
-																								System.out.println("getting all dependencies for T <"+T.getToDo()+">");
-				nullcheck = T.getAllDependentTasks();
-				if(nullcheck != null){
-																								System.out.println("T <"+T.getToDo()+"> has "+nullcheck.size()+" subtasks");
-					dependentSubTasks.addAll(nullcheck);
+				nullCheck = (Collection<Task>) T.getAllDependentTasks();
+				if(nullCheck != null){
+					dependentSubTasks.addAll(nullCheck);
 				}
-																								else{System.out.println("T <"+T.getToDo()+"< hos no dependent subtasks");}							
 			}
 			dependentTasks.addAll(dependentSubTasks);
 		}
-																								if(dependentTasks!=null){System.out.println("returning Task <"+task.getToDo()+"> with "+dependentTasks.size()+" dependent tasks");}
-																								else{System.out.println("returning null for Task <"+task.getToDo()+"> with no dependent tasks");}
 		return dependentTasks;
 	}
 	

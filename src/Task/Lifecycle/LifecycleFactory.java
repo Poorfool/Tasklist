@@ -1,9 +1,10 @@
-package TaskLifecycle;
+package Task.Lifecycle;
 
 import java.util.HashMap;
 import java.util.Set;
 
 import Task.Exemplar;
+import Task.State.TaskStateException;
 
 public class LifecycleFactory {
 
@@ -28,7 +29,7 @@ public class LifecycleFactory {
 	private LifecycleFactory(){ initialise();}
 	
 	public void addLifecycle(AbstractTaskLifecycle lifecycle){
-		lifecycles.put(lifecycle.getType(), lifecycle);
+		lifecycles.put(lifecycle.getLifecycleType(), lifecycle);
 	}
 	
 	public TaskLifecycle createTaskLifecycle(TaskLifecycleType type){
@@ -43,11 +44,11 @@ public class LifecycleFactory {
 		return this.lifecycles.keySet();
 	}
 	
-	public TaskLifecycle createTaskLifecycle(TaskLifecycleType type, TaskState currentState) throws TaskStateException{
+	public TaskLifecycle createTaskLifecycle(TaskLifecycleType type, TaskLifecycleState currentState) throws TaskStateException {
 		if(lifecycles.containsKey(type)){
 			return lifecycles.get(type).createLifecycle(currentState);
 		}else{
-			throw new TaskStateException(type + " is not a valid Task Lifecycle");
+			throw new TaskStateException(type + " is not a valid Task Task.Lifecycle");
 		}
 	}
 }
